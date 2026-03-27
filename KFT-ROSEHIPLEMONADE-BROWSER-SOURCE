@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KFT x ADVANCED – Stream Overlay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;700;800;900&display=swap');
+ 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  :root {
+    --pink-light: #fde8ef;
+    --pink-mid: #f7a8c4;
+    --pink-hot: #e8396b;
+    --pink-deep: #c9264f;
+    --black: #1a1a1a;
+    --white: #ffffff;
+  }
+ 
+  body {
+    width: 620px;
+    height: 190px;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Outfit', sans-serif;
+  }
+ 
+  .slide-wrapper {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    transform: translateY(calc(100% + 20px));
+    animation: slideLoop 300s ease-in-out infinite;
+  }
+ 
+  @keyframes slideLoop {
+    0%     { transform: translateY(calc(100% + 20px)); }
+    0.8%   { transform: translateY(0); }
+    5.5%   { transform: translateY(0); }
+    6.3%   { transform: translateY(calc(100% + 20px)); }
+    100%   { transform: translateY(calc(100% + 20px)); }
+  }
+ 
+  .container {
+    width: 620px;
+    height: 170px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+ 
+  .bg-panel {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--pink-light) 0%, #fcd0df 40%, var(--pink-mid) 100%);
+    border: 2.5px solid var(--pink-hot);
+    border-radius: 12px; overflow: hidden;
+  }
+ 
+  .pixel-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,57,107,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,57,107,0.05) 1px, transparent 1px);
+    background-size: 14px 14px; pointer-events: none;
+  }
+ 
+  .decor { position: absolute; border-radius: 2px; opacity: 0.12; animation: floatPx 6s ease-in-out infinite; }
+  .decor:nth-child(1) { width:10px; height:10px; background:var(--pink-hot); top:14px; left:50px; }
+  .decor:nth-child(2) { width:7px; height:7px; background:var(--pink-deep); top:130px; left:180px; animation-delay:1.2s; }
+  .decor:nth-child(3) { width:12px; height:12px; background:var(--pink-hot); top:25px; right:180px; animation-delay:2.4s; }
+  .decor:nth-child(4) { width:8px; height:8px; background:var(--pink-mid); top:140px; right:100px; animation-delay:0.6s; }
+ 
+  @keyframes floatPx {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+    50% { transform: translateY(-6px) rotate(45deg); opacity: 0.25; }
+  }
+ 
+  .plus { position: absolute; font-family: 'Press Start 2P', monospace; color: var(--pink-hot); font-size: 7px; opacity: 0.2; animation: plusSpin 4s linear infinite; }
+  .plus.a { top: 148px; left: 22px; }
+  .plus.b { top: 45px; left: 320px; animation-delay: 1.5s; font-size: 5px; }
+ 
+  @keyframes plusSpin {
+    0% { transform: rotate(0deg); opacity: 0.15; }
+    50% { transform: rotate(180deg); opacity: 0.35; }
+    100% { transform: rotate(360deg); opacity: 0.15; }
+  }
+ 
+  .hearts { position: absolute; top: 10px; right: 14px; display: flex; gap: 5px; z-index: 5; }
+  .hearts span { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--pink-hot); animation: heartPop 1.5s ease-in-out infinite; }
+  .hearts span:nth-child(2) { animation-delay: 0.3s; opacity: 0.65; }
+  .hearts span:nth-child(3) { animation-delay: 0.6s; opacity: 0.35; font-size: 6px; }
+ 
+  @keyframes heartPop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+ 
+  .badge {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    font-family: 'Press Start 2P', monospace; font-size: 7px;
+    color: var(--white); background: var(--pink-hot);
+    padding: 3px 10px; border-radius: 3px; z-index: 5;
+    box-shadow: 0 2px 0 var(--pink-deep); overflow: hidden;
+  }
+  .badge::after {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer { 0% { left: -100%; } 100% { left: 200%; } }
+ 
+  .content {
+    position: relative; z-index: 2;
+    display: flex; align-items: center;
+    height: 170px; padding: 12px 8px 12px 14px; gap: 12px;
+  }
+ 
+  .chat-section { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .chat-bubble {
+    background: var(--black); border-radius: 7px;
+    padding: 8px 12px; border: 2px solid var(--pink-hot);
+    box-shadow: 0 0 14px rgba(232,57,107,0.3);
+  }
+  .chat-command { font-family: 'Press Start 2P', monospace; font-size: 14px; color: var(--pink-hot); white-space: nowrap; }
+  .cursor {
+    display: inline-block; width: 9px; height: 16px;
+    background: var(--pink-hot); vertical-align: text-bottom; margin-left: 2px;
+    animation: blink 0.6s step-end infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .chat-label { font-family: 'Press Start 2P', monospace; font-size: 6px; color: var(--pink-deep); letter-spacing: 1px; opacity: 0.6; }
+ 
+  .divider {
+    width: 2px; height: 90px; flex-shrink: 0; opacity: 0.35;
+    background: linear-gradient(to bottom, transparent, var(--pink-hot), transparent);
+  }
+ 
+  .info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .collab-row { display: flex; align-items: center; gap: 6px; }
+  .brand {
+    font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--black);
+    background: var(--white); padding: 2px 7px; border-radius: 3px; border: 1.5px solid var(--pink-hot);
+  }
+  .x-mark { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--pink-hot); }
+  .flavor {
+    font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px;
+    color: var(--pink-deep); text-transform: uppercase; line-height: 1;
+    letter-spacing: -0.5px; text-shadow: 1px 1px 0 rgba(232,57,107,0.12);
+    white-space: nowrap;
+  }
+  .flavor em { font-style: normal; color: var(--pink-hot); }
+  .tags {
+    font-family: 'Press Start 2P', monospace; font-size: 5.5px;
+    color: var(--black); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .tag { background: var(--pink-hot); color: var(--white); padding: 2px 6px; border-radius: 2px; font-size: 5px; }
+  .cta { margin-top: 2px; }
+  .cta-btn {
+    display: inline-block; font-family: 'Press Start 2P', monospace; font-size: 7px;
+    color: var(--white); background: var(--pink-hot);
+    padding: 6px 12px; border-radius: 5px;
+    border: 2px solid var(--pink-deep);
+    box-shadow: 0 2px 0 var(--pink-deep), 0 4px 14px rgba(232,57,107,0.25);
+    animation: ctaGlow 2s ease-in-out infinite; letter-spacing: 0.5px;
+  }
+  @keyframes ctaGlow {
+    0%, 100% { box-shadow: 0 2px 0 var(--pink-deep), 0 4px 14px rgba(232,57,107,0.25); }
+    50% { box-shadow: 0 2px 0 var(--pink-deep), 0 4px 22px rgba(232,57,107,0.5); }
+  }
+ 
+  .jar-section {
+    flex-shrink: 0; width: 140px; height: 170px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .jar-section img {
+    height: 150px; width: auto; object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(201,38,79,0.25));
+    animation: jarFloat 3s ease-in-out infinite;
+  }
+  @keyframes jarFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-5px) rotate(0deg); }
+  }
+</style>
+</head>
+<body>
+<div class="slide-wrapper">
+  <div class="container">
+    <div class="bg-panel">
+      <div class="pixel-grid"></div>
+      <div class="decor"></div><div class="decor"></div><div class="decor"></div><div class="decor"></div>
+      <span class="plus a">+</span><span class="plus b">+</span>
+    </div>
+    <div class="badge">★ NEW DROP ★</div>
+    <div class="hearts"><span>♥</span><span>♥</span><span>♥</span></div>
+    <div class="content">
+      <div class="chat-section">
+        <div class="chat-bubble">
+          <div class="chat-command"><span id="typed"></span><span class="cursor"></span></div>
+        </div>
+        <div class="chat-label">TYPE IN CHAT</div>
+      </div>
+      <div class="divider"></div>
+      <div class="info">
+        <div class="collab-row">
+          <span class="brand">KUNG FU TEA</span>
+          <span class="x-mark">×</span>
+          <span class="brand">ADVANCED</span>
+        </div>
+        <div class="flavor">ROSEHIP <em>LEMONADE</em></div>
+        <div class="tags">
+          <span class="tag">HYDRATION+</span>
+          <span class="tag">IMMUNITY</span>
+          <span>VIT C · VIT D · ZINC</span>
+        </div>
+        <div class="cta"><span class="cta-btn">SHOP → ADVANCED.GG</span></div>
+      </div>
+      <div class="jar-section">
+        <img src="https://cdn.shopify.com/s/files/1/0459/6036/4189/files/ADV-KFT-Hydration-Rosehip-Lemonade-01.png?v=1773952815" alt="Rosehip Lemonade Hydration+">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const TARGET = "!adv";
+  const el = document.getElementById("typed");
+  let idx = 0;
+  function typeChar() {
+    if (idx < TARGET.length) {
+      el.textContent += TARGET[idx];
+      idx++;
+      setTimeout(typeChar, 160 + Math.random() * 140);
+    } else {
+      setTimeout(() => { el.textContent = ""; idx = 0; setTimeout(typeChar, 600); }, 4000);
+    }
+  }
+  setTimeout(typeChar, 1200);
+</script>
+</body>
+</html>
